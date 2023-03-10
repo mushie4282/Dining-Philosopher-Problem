@@ -8,7 +8,6 @@
 
 public class Philosopher implements Runnable
 {
-    long sleepTime = (long) (Math.random() * 2000) + 1000; // random delay value between 1000 to 2999 ms
     private int idNum; // philosopher number
     private DiningServerImpl right, left; // right & left chopstick instances
 
@@ -16,45 +15,43 @@ public class Philosopher implements Runnable
     public Philosopher(int num, DiningServerImpl rightchop, DiningServerImpl leftchop)
     {
         this.idNum = num; // initialize philosopher number
-        this.right = rightchop;
-        this.left = leftchop; 
+        this.right = rightchop; // intialize right side chopstick
+        this.left = leftchop; // intialize left side chopstick
     }
 
+    /**
+     * @brief Thread's execution code. Each thread will alternate between "THINKING" and "EATING".
+     */
     @Override
-    public void run() {
+    public void run() {        
         try {
-            // alternate between thinking and eating
             while(true)
             {
-                // check if the philosopher's num is even or odd
-                if((idNum % 2) == 0)
+                long sleepTime = (long) (Math.random() * 2000) + 1000; // thread delay variable
+                System.out.println("Philosopher " + idNum + " is THINKING for " + sleepTime + " ms.");
+                Thread.sleep(sleepTime); // thread becomes dormant until 'sleepTime' has elasped
+
+                // acquire both chopsticks
+                boolean rightFlag = right.takeForks();
+                boolean leftFlag = left.takeForks();
+
+                // eat only if both chopsticks are acquired
+                if(rightFlag && leftFlag)
                 {
-                    // pick up right fork 1st if idNum == even
-                    System.out.println("Philosopher " + idNum + "is THINKING for " + sleepTime + " ms.");
-                    Thread.sleep(sleepTime); // sleep for the generated delay
-                    right.takeForks(idNum);
-                    left.takeForks(idNum);
-                    System.out.println("Philosopher " + idNum + "is EATING for " + sleepTime + " ms."); 
-                    Thread.sleep(sleepTime); // sleep for the generated delay   
-                    left.returnForks(idNum);
-                    right.returnForks(idNum);
+                    System.out.println("Philosopher " + idNum + " has the chopsticks");
+                    System.out.println("Philosopher " + idNum + " is EATING for " + sleepTime + " ms.");  
+                    Thread.sleep(sleepTime); // thread becomes dormant until 'sleepTime' has elasped
                 }
-                else
-                {
-                    // pick up left fork 1st if idNum == even
-                    System.out.println("Philosopher " + idNum + "is THINKING for " + sleepTime + " ms.");
-                    Thread.sleep(sleepTime); // sleep for the generated delay
-                    left.takeForks(idNum);
-                    right.takeForks(idNum);
-                    System.out.println("Philosopher " + idNum + "is EATING for " + sleepTime + " ms."); 
-                    Thread.sleep(sleepTime); // sleep for the generated delay   
-                    right.returnForks(idNum);
-                    left.returnForks(idNum);
-                }
+                
+                // release both chopsticks
+                left.returnForks();
+                right.returnForks();
             }
-        } catch (Exception e) {
-            System.out.println("run caught"); 
-            System.err.println(e);
+        } catch (InterruptedException inter) {
+            System.err.println("Philosopher " + idNum + "gave " + inter.getMessage());
+        }
+        catch (Exception e){
+            System.err.println("Philosopher " + idNum + "gave " + e.getMessage());
         }
     }
 }

@@ -9,9 +9,9 @@
 public interface DiningServer 
 {   
    // called by a philosopher when they wish to eat 
-   public void takeForks(int philNumber);
+   public boolean takeForks();
   
    // called by a philosopher when they are finished eating 
-   public void returnForks(int philNumber);
+   public void returnForks();
 }
 

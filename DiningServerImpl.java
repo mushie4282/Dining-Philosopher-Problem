@@ -4,43 +4,55 @@
  * This class contains the methods called by the philosophers.
  *
  */
-
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-
 
 public class DiningServerImpl implements DiningServer 
 {
-	ReentrantLock stick = new ReentrantLock(); 
+	ReentrantLock stick = new ReentrantLock();
 
-	public void takeForks(int philNumber)
+	/**
+	 * @brief Return TRUE if reentrant lock is acquired. Return FALSE if reentrant lock is occupied.
+	 * // Acquires the lock only if it is not held by another thread at the time of invocation.
+	 */
+	public boolean takeForks()
 	{
 		try {
+			// check if lock is available
 			if(stick.tryLock())
 			{
-				// Acquires the lock only if it is not held by another thread at the time of invocation.
-				stick.lock();
+				// lock acquired
+				return true; 
 			}
 			else
 			{
-				// Causes the current thread to wait until it is awakened, typically by being notified or interrupted.
-				stick.wait(); 
+				// lock is held by another thread
+				return false; 
 			}
-		} catch (Exception e) {
-			System.out.println("takeFork caught"); 
-			System.err.println(e.getMessage()); 
+		} 
+		catch(IllegalMonitorStateException e) 
+		{
+			System.err.println("takeFork(): " + e.getMessage()); // previous error message: current thread not owner
 		}
+		return false; 
 	}
 
-	public void returnForks(int philNumber)
+	/**
+	 * @brief The lock is released only if the current thread is holding a lock. 
+	 * Nothing will happen if the thread is not holding one.
+	 */
+	public void returnForks()
 	{
 		try {
-			stick.unlock();
-			
-		} catch (Exception e) {
-			System.out.println("returnForks caught"); 
-			System.err.println(e.getMessage()); 
+			// check if the current thread is holding a lock
+			if(stick.isHeldByCurrentThread())
+			{
+				// release the lock
+				stick.unlock();	
+			}
+		} 
+		catch (IllegalMonitorStateException e) 
+		{
+			System.err.println("returnFork(): " + e.getMessage()); // previous error message: null
 		}
 	}
 

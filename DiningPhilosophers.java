@@ -12,10 +12,10 @@ public class DiningPhilosophers
 
   public static void main(String args[])
   {
-    DiningServerImpl[] chopsticks = new DiningServerImpl[numOfPhilo]; // array of chopsticks
+    DiningServerImpl[] chopsticks = new DiningServerImpl[numOfPhilo]; // array of chopsticks that is shared amongst the philosophers
     Thread[] threads = new Thread[numOfPhilo]; // array of threads
     
-    // Create a list of reentrant locks for chopsticks shared amongst the philosophers
+    // Initialize reentrant locks within chopstick array
     for(int i = 0; i < numOfPhilo; i++)
     {
       chopsticks[i] = new DiningServerImpl(); 
